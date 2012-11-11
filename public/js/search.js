@@ -110,7 +110,7 @@ var submit_search = function(){
 
     var p = 1;
     //$("#search_result").empty();
-    $("#search_result").load(encodeURIComponent("/result/" + domain + "/" + tdl + "?place=" + place + "&dic=" + dic));
+    $("#search_result").load("/result/" + domain + "/" + tdl + "?place=" + place + "&dic=" + encodeURIComponent(dic));
 };
 
 $(document).ready(function() {
