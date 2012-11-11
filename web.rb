@@ -29,32 +29,6 @@ class JKeywords
   field :key, :type => String
 end
 
-def get_result(params)
-  cache_control(:no_cache)
-  content_type :json, 'charset' => 'utf-8'
-  domain = params[:domain]
-  tdl = params[:tdl]
-  dic = params[:dic]
-  if params[:dic] == 'Japanese Dictionary' then words_class = Class.const_get("JKeywords") else words_class = Class.const_get("Keywords") end
-  place = params[:place].to_i
-
-  obj = Hash.new
-  count = 0
-  words_class.each do |word|
-    if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
-    res = REDIS.get(url)
-    obj.store(url, res)
-    if res != nil
-      count += 1
-    end
-  end
-
-  obj.store("percent?", count*100/words_class.count)
-  finish = REDIS.get(domain)
-  obj.store("isfinished?", finish)
-  obj.to_json
-end
-
 # test--------------
 get '/test' do
   REDIS.client.to_json
@@ -128,6 +102,32 @@ end
 
 get '/api/result/:domain/:tdl' do
   get_result(params)
+end
+
+def get_result(params)
+  cache_control(:no_cache)
+  content_type :json, 'charset' => 'utf-8'
+  domain = params[:domain]
+  tdl = params[:tdl]
+  dic = params[:dic]
+  if params[:dic] == 'Japanese Dictionary' then words_class = Class.const_get("JKeywords") else words_class = Class.const_get("Keywords") end
+  place = params[:place].to_i
+
+  obj = Hash.new
+  count = 0
+  words_class.each do |word|
+    if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
+    res = REDIS.get(url)
+    obj.store(url, res)
+    if res != nil
+      count += 1
+    end
+  end
+
+  obj.store("percent?", count*100/words_class.count)
+  finish = REDIS.get(domain)
+  obj.store("isfinished?", finish)
+  obj.to_json
 end
 
 get '/abc/keywords' do
