@@ -1,0 +1,8 @@
+production:
+  sessions:
+    default:
+      uri: mongodb://domainkeywords:domainkeywords@ds041367.mongolab.com:41367/af_domaincheck-rookitcn
+production:
+  sessions:
+    default:
+      uri: mongodb://domainkeywords:domainkeywords@ds041367.mongolab.com:41367/af_domaincheck-rookitcn

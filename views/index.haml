@@ -1,0 +1,17 @@
+!!!
+%html
+  %head
+    %title
+      Domain Check
+    %meta{ 'http-equiv' => 'Content-Type', :content => 'text/html; charset=UTF-8'}
+    %meta{ 'http-equiv' => 'Content-Script-Type', :content => 'text/javascript'}
+    %meta{ 'http-equiv' => 'Content-Style-Type', :content => 'text/css'}
+    = stylesheet_link_tag '/css/bootstrap.min.css'
+    = javascript_include_tag :defaults
+    = javascript_include_tag 'jquery'
+    = javascript_include_tag '/js/bootstrap.min.js'
+  %body
+    .center
+      %form{:action => "/", :method => "post", :class => "form-search"}
+	%input{:type => "texfield", :name => "str", :class => "input-large search-query"}
+	  %input{:type => "submit", :value => "send", :class => "btn btn-large btn-primary"}
