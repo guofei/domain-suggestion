@@ -65,7 +65,6 @@ end
 
 get '/result/:domain/:tdl' do
   cache_control(:no_cache)
-  content_type :json, 'charset' => 'utf-8'
   domain = params[:domain]
   tdl = params[:tdl]
   dic = params[:dic]
