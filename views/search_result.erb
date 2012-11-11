@@ -1,8 +1,12 @@
 <div class="">
-  Loading <%= @percent %>%<div class="progress progress-striped active"><div class="bar" style="width: <%= @percent %>%;"></div></div>
+  Loading <%= @percent %>%
+  <div class="progress progress-striped active">
+    <div class="bar" style="width: <%= @percent %>%;">
+    </div>
+  </div>
 </div>
 <div class="">
-  <input type="checkbox" id="onlyshowvaliable" <%= @check == 1 "checked" : "" %>> Only show available
+  <input type="checkbox" id="onlyshowvaliable" <%= @check == 1 ? "checked" : "" %>> Only show available
 </div>
 <table class="table table-hover">
   <thead>
