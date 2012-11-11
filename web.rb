@@ -85,7 +85,7 @@ get '/result/:domain/:tdl' do
   end
 
   @percent = count*100/words_class.count
-  erb "search_result.html"
+  erb :search_result
 end
 
 
