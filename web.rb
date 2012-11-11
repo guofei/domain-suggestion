@@ -71,22 +71,21 @@ get '/result/:domain/:tdl' do
   dic = params[:dic]
   if params[:dic] == 'Japanese Dictionary' then words_class = Class.const_get("JKeywords") else words_class = Class.const_get("Keywords") end
   place = params[:place].to_i
+  @checked = params[:showavailable].to_i
 
-  obj = Hash.new
+  @domains = Hash.new
   count = 0
   words_class.each do |word|
     if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
     res = REDIS.get(url)
-    obj.store(url, res)
+    @domains.store(url, res)
     if res != nil
       count += 1
     end
   end
 
-  obj.store("percent?", count*100/words_class.count)
-  finish = REDIS.get(domain)
-  obj.store("isfinished?", finish)
-  obj.to_json
+  @percent = count*100/words_class.count
+  erb "search_result.html"
 end
 
 

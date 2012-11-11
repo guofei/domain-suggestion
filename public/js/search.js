@@ -63,7 +63,7 @@ var get_domain_result = function(url, only_show_vailable){
               });
 };
 
-var submit_search = function(){
+var submit_search2 = function(){
     var domain = $("#domain").attr("value");
     var tdl = $("#tdl").attr("value");
     var dic = $("#dic").attr("value");
@@ -88,6 +88,29 @@ var submit_search = function(){
       }).appendTo('#search_result');
 
     get_domain_result("/api/result/" + domain + "/" + tdl + "?place=" + place + "&dic=" + dic, false);
+};
+
+var submit_search = function(){
+    var domain = $("#domain").attr("value");
+    var tdl = $("#tdl").attr("value");
+    var dic = $("#dic").attr("value");
+    console.log(dic);
+    var place = '0';
+    if($('#optionsRadios2').is(':checked'))
+        place = '1';
+
+    if(timer_get_result != null){
+        clearTimeout(timer_get_result);
+        timer_get_result = null;
+    }
+
+    $.getJSON("/get/" + domain + "/" + tdl + "?place=" + place + "&dic=" + dic, function(data) {});
+
+    is_only_show_vailable = false;
+
+    var p = 1;
+    //$("#search_result").empty();
+    $("#search_result").load("/result/" + domain + "/" + tdl + "?place=" + place + "&dic=" + dic);
 };
 
 $(document).ready(function() {
