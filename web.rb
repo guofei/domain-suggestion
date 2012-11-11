@@ -29,6 +29,32 @@ class JKeywords
   field :key, :type => String
 end
 
+def get_result(params)
+  cache_control(:no_cache)
+  content_type :json, 'charset' => 'utf-8'
+  domain = params[:domain]
+  tdl = params[:tdl]
+  dic = params[:dic]
+  if params[:dic] == 'Japanese Dictionary' then words_class = Class.const_get("JKeywords") else words_class = Class.const_get("Keywords") end
+  place = params[:place].to_i
+
+  obj = Hash.new
+  count = 0
+  words_class.each do |word|
+    if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
+    res = REDIS.get(url)
+    obj.store(url, res)
+    if res != nil
+      count += 1
+    end
+  end
+
+  obj.store("percent?", count*100/words_class.count)
+  finish = REDIS.get(domain)
+  obj.store("isfinished?", finish)
+  obj.to_json
+end
+
 # test--------------
 get '/test' do
   REDIS.client.to_json
@@ -64,29 +90,8 @@ get '/get/:domain/:tdl' do
 end
 
 get '/result/:domain/:tdl' do
-  cache_control(:no_cache)
-  domain = params[:domain]
-  tdl = params[:tdl]
-  dic = params[:dic]
-  if params[:dic] == 'Japanese Dictionary' then words_class = Class.const_get("JKeywords") else words_class = Class.const_get("Keywords") end
-  place = params[:place].to_i
-  @checked = params[:showavailable].to_i
-
-  @domains = Hash.new
-  count = 0
-  words_class.each do |word|
-    if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
-    res = REDIS.get(url)
-    @domains.store(url, res)
-    if res != nil
-      count += 1
-    end
-  end
-
-  @percent = count*100/words_class.count
-  erb :search_result
+  get_result(params)
 end
-
 
 # back-end----------
 
@@ -96,24 +101,12 @@ get '/api/getallasync/:domain/:tdl' do
   domain = params[:domain]
   tdl = params[:tdl]
   dic = params[:dic]
-  words_class = Class.const_get("Keywords")
-  words_class = Class.const_get("JKeywords") if dic == 'Japanese Dictionary'
+  if params[:dic] == 'Japanese Dictionary' then words_class = Class.const_get("JKeywords") else words_class = Class.const_get("Keywords") end
   place = params[:place].to_i
 
   REDIS.set(domain, 0)
   REDIS.expire(domain, EXPIRE_TIME)
   EM::defer do
-    begin
-      p = 0
-      p = place if place == 1
-      d = 'English Dictionary'
-      d = dic if dic == 'Japanese Dictionary'
-      url = URI.parse(URI.escape "http://intense-fortress-7892.herokuapp.com/api/getallasync/#{domain}/#{tdl}?place=#{p}&dic=#{d}")
-      Net::HTTP.get_print url
-      url2 = URI.parse(URI.escape "http://domiancheck-kaku.rhcloud.com/api/getallasync/#{domain}/#{tdl}?place=#{p}&dic=#{d}")
-      Net::HTTP.get_print url2
-    rescue => e
-    end
     words_class.each do |word|
       if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
       if REDIS.get(url) == nil
@@ -134,30 +127,7 @@ get '/api/getallasync/:domain/:tdl' do
 end
 
 get '/api/result/:domain/:tdl' do
-  cache_control(:no_cache)
-  content_type :json, 'charset' => 'utf-8'
-  domain = params[:domain]
-  tdl = params[:tdl]
-  dic = params[:dic]
-  words_class = Class.const_get("Keywords")
-  words_class = Class.const_get("JKeywords") if dic == 'Japanese Dictionary'
-  place = params[:place].to_i
-
-  obj = Hash.new
-  count = 0
-  words_class.each do |word|
-    if place == 1 then url = "#{word.key}#{domain}.#{tdl}" else url = "#{domain}#{word.key}.#{tdl}" end
-    res = REDIS.get(url)
-    obj.store(url, res)
-    if res != nil
-      count += 1
-    end
-  end
-
-  obj.store("percent?", count*100/words_class.count)
-  finish = REDIS.get(domain)
-  obj.store("isfinished?", finish)
-  obj.to_json
+  get_result(params)
 end
 
 get '/abc/keywords' do
